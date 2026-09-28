@@ -1,5 +1,10 @@
+# https://github.com/Dzsozseff
 # made by: joci12_
 # v1.1
+
+on script load:
+    send "&c&l[modera]&l&c &abetöltése..." to console
+
 options:
     noperm: &cEhhez a parancshoz nincs jogod!
     noplayername: &cAdj meg egy játékosnevet!
@@ -307,3 +312,6 @@ command /silentunmute [<offline player>]:
     if {muteplayer::%arg-1%} is true:
       set {muteplayer::%arg-1%} to false
       send "&aFeloldottad&a &c%arg-1%&c &ajátékos némítását!"
+
+on script load:
+    send "&c&l[modera]&l&c &asikeresen betölött!" to console
