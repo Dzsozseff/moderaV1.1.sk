@@ -8,6 +8,7 @@ options:
     kick: &7[&7&c&lKICK&l&c&7]&7
     unban: &7[&7&c&lUNBAN&l&c&7]&7
     warn: &7[&7&c&lWARN&l&c&7]&7
+    mute: &7[&7&c&lMUTE&l&c&7]&7
     
 command /modera [<text>] [<player>] [<text>]:
   permission: modera.modera
@@ -27,6 +28,22 @@ command /modera [<text>] [<player>] [<text>]:
 
     if arg-1 is "warn":
       execute player command "warn %arg-2%"
+      stop
+
+    if arg-1 is "mute":
+      execute player command "mute %arg-2%"
+      stop
+
+    if arg-1 is "unmute":
+      execute player command "unmute %arg-2%"
+      stop
+
+    if arg-1 is "silentmute":
+      execute player command "silentmute %arg-2%"
+      stop
+      
+    if arg-1 is "silentunmute":
+      execute player command "silentunmute %arg-2%"
       stop
 
     if arg-1 is "silentban":
@@ -52,8 +69,12 @@ command /modera [<text>] [<player>] [<text>]:
       send "/unban <játékosnév> <indok> &7[Feloldja a megadott játékos tiltását.]"
       send "/kick <játékosnév> <indok> &7[Kirúgja a megadott játékost.]"
       send "/warn <játékosnév> <indok> &7[Figyelmezteti a megadott játékost.]"
+      send "/mute <játékosnév> <indok> &7[Lenémítsa a megadott játékost.]"
+      send "/unmute <játékosnév> &7[Feloldja a megadott játékos némítását.]"
       send "/silentban <játékosnév> <indok> &7[Jelzés nélkül kitiltja a megadott játékost]"
       send "/silentunban <játékosnév> <indok> &7[Jelzés nélkül feloldja a megadott játékos tiltását]"
+      send "/silentmute <játékosnév> <indok> &7[Jelzés nélkül némítja a megadott játékost.]"
+      send "silentunmute <játékosnév> &7[Jelzés nélkül feloldja a megadott játékos némítását.]"
       send "/history <játékosnév> &7[Megmutatja a megadott játékos előzményeit.]"
       send "/clearhistory <játékosnév> &7[Törli a megadott játékos előzményeit.]"
       send "/modera update"
@@ -164,6 +185,7 @@ command /silentban [<player>] [<text>]:
 
     if arg-2 is not set:
       execute player command "minecraft:ban %arg-1% &c%player%&c &fkitiltott téged!"
+      add "[%now%] &cSILENTBAN &7by &f%player%&7: %arg-2%" to {history::%arg-1%::*}
       stop
 
     execute console command "minecraft:ban %arg-1% &c%player%&c &fkitiltott téged! %newline% &fIndok:&f &c%arg-2%"
@@ -212,3 +234,76 @@ command /clearhistory <offline player>:
 
         clear {history::%arg-1%::*}
         send "&aSikeresen törölted &e%arg-1% &aösszes előzményét!"
+
+command /mute [<offline player>] [<text>]:
+  permission: modera.mute
+  permission message: {@noperm}
+  
+  trigger:
+    if arg-1 is not set:
+      send "{@noplayername}"
+      stop
+
+    if arg-2 is not set:
+      set {muteplayer::%arg-1%} to true
+      broadcast "&7[&7&c&lMUTE&l&c&7]&7 &c%player%&c &fLenémította &c%arg-1%&c &fjátékost!"
+      add "[%now%] {@mute} &7by &f%player%&7" to {history::%arg-1%::*}
+      stop
+
+    set {muteplayer::%arg-1%} to true
+    broadcast "{@mute} &c%player%&c &fLenémította &c%arg-1%&c &fjátékost! Indok: &c%arg-2%"
+    add "[%now%] {@mute} &7by &f%player%&7: %arg-2%" to {history::%arg-1%::*}
+
+on chat:
+  if {muteplayer::%player%} is true:
+    send "&cLe vagy némítva!&c"
+    cancel event
+
+command /unmute [<offline player>]:
+  permission: modera.unmute
+  permission message: {@noperm}
+  
+  trigger:
+    if arg-1 is not set:
+      send "{@noplayername}"
+      stop
+
+    if {muteplayer::%arg-1%} is true:
+      set {muteplayer::%arg-1%} to false
+      broadcast "&7[&7&c&lUNMUTE&l&c&7]&7 &c%player%&c &ffeloldotta &c%arg-1%&c &fnémítását!"
+
+command /silentmute [<offline player>] [<text>]:
+  permission: modera.silentmute
+  permission message: {@noperm}
+  
+  trigger:
+    if arg-1 is not set:
+      send "{@noplayername}"
+      stop
+
+    if arg-2 is not set:
+      set {muteplayer::%arg-1%} to true
+      add "[%now%] &cSILENTMUTE &7by &f%player%&7" to {history::%arg-1%::*}
+      send "&aLenémítottad&a &c%arg-1%&c &ajátékost!"
+      stop
+
+    set {muteplayer::%arg-1%} to true
+    add "[%now%] &cSILENTMUTE &7by &f%player%&7" to {history::%arg-1%::*}
+
+on chat:
+  if {silentmuteplayer::%player%} is true:
+    send "&cLe vagy némítva!&c"
+    cancel event
+
+command /silentunmute [<offline player>]:
+  permission: modera.unmute
+  permission message: {@noperm}
+  
+  trigger:
+    if arg-1 is not set:
+      send "{@noplayername}"
+      stop
+
+    if {muteplayer::%arg-1%} is true:
+      set {muteplayer::%arg-1%} to false
+      send "&aFeloldottad&a &c%arg-1%&c &ajátékos némítását!"
