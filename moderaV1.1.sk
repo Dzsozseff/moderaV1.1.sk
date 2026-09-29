@@ -98,7 +98,7 @@ command /modera [<text>] [<player>] [<text>]:
     if arg-1 is "update":
       send "Frissítések keresése..."
       wait 2 seconds
-      send "&aA legújabb &c&l[modera]&l&c &averzió fut a szerveren!"
+      send "&aÚj verzió érhető el! V2"
 
     if arg-1 is "version":
       send "A jelenlegi &c&l[modera]&l&c &fverzió: &lV1.1"
